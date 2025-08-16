@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>任務遊戲</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; }
+    .card-container { display: flex; justify-content: center; gap: 40px; margin: 20px 0; }
+    .card {
+      width: 200px; height: 120px; perspective: 1000px; cursor: pointer;
+    }
+    .card-inner {
+      position: relative; width: 100%; height: 100%;
+      transition: transform 0.6s; transform-style: preserve-3d;
+    }
+    .card.flipped .card-inner { transform: rotateY(180deg); }
+    .card-face {
+      position: absolute; width: 100%; height: 100%;
+      backface-visibility: hidden; display: flex; justify-content: center; align-items: center;
+      border: 2px solid #333; border-radius: 8px; font-size: 18px; font-weight: bold;
+    }
+    .card-front { background: #f3f3f3; }
+    .card-back { background: #ffebc2; transform: rotateY(180deg); }
+    button { margin-top: 10px; padding: 5px 10px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h1>❤️ 專屬mike生日互動小遊戲 ❤️</h1>
+  <div class="card-container">
+    <div class="card" id="playerCard">
+      <div class="card-inner">
+        <div class="card-face card-front">答題者</div>
+        <div class="card-face card-back"></div>
+      </div>
+    </div>
+    <div class="card" id="questionCard">
+      <div class="card-inner">
+        <div class="card-face card-front">題目</div>
+        <div class="card-face card-back"></div>
+      </div>
+    </div>
+  </div>
+  <button onclick="resetCards()">🔄 重置</button>
+
+  <h2>已抽取過的題目</h2>
+  <ul id="usedQuestions"></ul>
+
+  <script>
+    const players = ["爸爸", "媽媽", "老公"];
+    let questions = [
+      "另一半最喜歡的顏色？",
+      "另一半最愛吃的菜系？",
+      "另一半最喜歡的季節？",
+      "另一半最害怕的東西？",
+      "另一半最想去的旅行地點？",
+      "另一半在不考慮健康因素情況下，玉米/懷山？",
+      "另一半在不考慮健康因素情況下，芋頭鮮奶/木瓜鮮奶？",
+      "另一半在不考慮健康因素情況下，珍珠/芋圓？",
+      "另一半在不考慮健康因素情況下，榴蓮/西瓜？",
+      "另一半在不考慮健康因素情況下，飯/麵？",
+      "另一半在不考慮健康因素情況下，肉鬆/鮪魚？",
+      "另一半最喜歡的電影類型？",
+      "另一半早上起床第一件事是什麼？",
+      "另一半最常說的口頭禪？",
+      "另一半洗澡時會先洗哪一個部位？",
+      "另一半如果能擁有一種超能力，會希望是什麼？",
+      "與另一半第一次見面的地點？",
+      "與另一半第一次吵架的原因？",
+      "與另一半一起做過最瘋狂的事情？",
+      "與另一半最喜歡一起做的事情？",
+      "送給與另一半的第一份禮物是什麼？",
+      "如果另一半突然變成了一種動物，會是什麼？",
+      "如果自己中了彩票頭獎，會怎麼運用這筆錢？",
+      "覺得自己最性感的身體部位是哪裡？"
+    ];
+    let usedQuestions = [];
+
+    function randomPick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    const playerCard = document.getElementById("playerCard");
+    const questionCard = document.getElementById("questionCard");
+    const usedList = document.getElementById("usedQuestions");
+
+    playerCard.addEventListener("click", () => {
+      playerCard.classList.add("flipped");
+      playerCard.querySelector(".card-back").textContent = randomPick(players);
+    });
+
+    questionCard.addEventListener("click", () => {
+      if (questions.length === 0) {
+        questionCard.querySelector(".card-back").textContent = "題庫已空!";
+        questionCard.classList.add("flipped");
+        return;
+      }
+      const q = randomPick(questions);
+      questionCard.classList.add("flipped");
+      questionCard.querySelector(".card-back").textContent = q;
+
+      // 移到已用題庫
+      questions = questions.filter(item => item !== q);
+      usedQuestions.push(q);
+      renderUsedQuestions();
+    });
+
+    function resetCards() {
+      playerCard.classList.remove("flipped");
+      questionCard.classList.remove("flipped");
+      playerCard.querySelector(".card-back").textContent = "";
+      questionCard.querySelector(".card-back").textContent = "";
+    }
+
+    function renderUsedQuestions() {
+      usedList.innerHTML = "";
+      usedQuestions.forEach((q, index) => {
+        const li = document.createElement("li");
+        li.textContent = q + " ";
+        const btn = document.createElement("button");
+        btn.textContent = "丟回題庫";
+        btn.onclick = () => {
+          questions.push(q);
+          usedQuestions.splice(index, 1);
+          renderUsedQuestions();
+        };
+        li.appendChild(btn);
+        usedList.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
